@@ -95,6 +95,28 @@ npm --version
 3. 설치 파일 실행 → 기본값으로 Next
 4. 터미널을 새로 열고 다시 확인
 
+### ⚠️ Windows에서 `npm --version`만 오류가 날 때
+
+증상:
+- `node --version` → ✅ 정상
+- `npm --version` → ❌ "이 시스템에서 스크립트를 실행할 수 없으므로 ... npm.ps1 파일을 로드할 수 없습니다"
+
+원인은 Node.js 문제가 아니라 **PowerShell의 스크립트 실행 정책**이 기본값(`Restricted`)으로 잠겨 있어서 npm이 내부적으로 호출하는 `npm.ps1` 파일이 차단되기 때문입니다.
+
+**해결 (관리자 권한 불필요):**
+
+1. **일반** PowerShell을 새로 엽니다 (관리자 모드 아님)
+2. 아래 명령을 복사·붙여넣기 → Enter
+   ```powershell
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   ```
+3. "실행 정책을 변경하시겠습니까?" 묻는 화면이 뜨면 **`Y`** 또는 **`A`(모두 예)** 입력 → Enter
+4. PowerShell을 닫고 새로 연 뒤 `npm --version` 다시 확인
+
+> 💡 `-Scope CurrentUser` 는 내 계정에만 적용되므로 관리자 권한이 필요 없고, 시스템 전역 설정도 건드리지 않습니다. 검색하면 자주 나오는 `Set-ExecutionPolicy RemoteSigned`(관리자 모드, 시스템 전체) 명령보다 안전합니다.
+>
+> `RemoteSigned`의 의미는 "내 PC에서 만든 스크립트는 허용, 인터넷에서 받은 서명 없는 스크립트는 차단" 입니다. 보안과 사용성의 중간 단계로 마이크로소프트가 권장하는 기본 설정입니다.
+
 > 💡 클로드 코드 네이티브 설치만 쓸 거면 Node.js 없이도 됩니다. 다만 MCP·npm 기반 확장 실습에 필요하므로 설치를 권장합니다.
 
 ---
@@ -289,6 +311,10 @@ curl -fsSL https://claude.ai/install.sh | bash
 **Q5. Windows 터미널 한글 깨짐**
 - 해결: PowerShell에서 `chcp 65001` 입력
 - 또는 Windows 터미널 설정 → 기본값 → **코드 페이지 65001 (UTF-8)**
+
+**Q6. `node --version` 은 되는데 `npm --version` 만 "스크립트를 로드할 수 없습니다" 오류**
+- 원인: PowerShell 실행 정책(`Restricted`) 이 npm.ps1 차단
+- 해결: 위 [② Node.js / npm](#-windows에서-npm---version만-오류가-날-때) 섹션의 `Set-ExecutionPolicy ... -Scope CurrentUser` 명령 참고
 
 ---
 
