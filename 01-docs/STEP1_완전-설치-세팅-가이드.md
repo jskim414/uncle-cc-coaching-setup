@@ -90,6 +90,28 @@ npm --version
 ```
 각각 `v20.x.x`, `10.x.x` 같은 숫자가 뜨면 성공입니다.
 
+### ⚠️ Windows에서 `npm --version`만 오류가 날 때
+
+증상:
+- `node --version` → ✅ 정상
+- `npm --version` → ❌ "이 시스템에서 스크립트를 실행할 수 없으므로 ... npm.ps1 파일을 로드할 수 없습니다"
+
+원인은 Node.js 문제가 아니라 **PowerShell의 스크립트 실행 정책**이 기본값(`Restricted`)으로 잠겨 있어서 npm이 내부적으로 호출하는 `npm.ps1` 파일이 차단되기 때문입니다.
+
+**해결 (관리자 권한 불필요):**
+
+1. **일반** PowerShell을 새로 엽니다 (관리자 모드 아님)
+2. 아래 명령을 복사·붙여넣기 → Enter
+   ```powershell
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   ```
+3. "실행 정책을 변경하시겠습니까?" 묻는 화면이 뜨면 **`Y`** 또는 **`A`(모두 예)** 입력 → Enter
+4. PowerShell을 닫고 새로 연 뒤 `npm --version` 다시 확인
+
+> 💡 `-Scope CurrentUser` 는 내 계정에만 적용되므로 관리자 권한이 필요 없고, 시스템 전역 설정도 건드리지 않습니다. 검색하면 자주 나오는 `Set-ExecutionPolicy RemoteSigned`(관리자 모드, 시스템 전체) 명령보다 안전합니다.
+>
+> `RemoteSigned`의 의미는 "내 PC에서 만든 스크립트는 허용, 인터넷에서 받은 서명 없는 스크립트는 차단" 입니다. 보안과 사용성의 중간 단계로 마이크로소프트가 권장하는 기본 설정입니다.
+
 ---
 
 ## 4. Claude Code 설치 (약 3분)
@@ -231,7 +253,11 @@ Google이 2026년 초 공개한 Agent-First AI IDE. MCP·Skills 표준을 공유
 - PowerShell에서 `chcp 65001` 입력
 - 또는 Windows 터미널 설정 → 기본값 → **코드 페이지 65001 (UTF-8)**
 
-**Q6. 회사 PC인데 관리자 권한이 없음**
+**Q6. `node --version` 은 되는데 `npm --version` 만 "스크립트를 로드할 수 없습니다" 오류**
+- 원인: PowerShell 실행 정책(`Restricted`) 이 npm.ps1 차단
+- 해결: 위 [3. Node.js 설치](#-windows에서-npm---version만-오류가-날-때) 섹션의 `Set-ExecutionPolicy ... -Scope CurrentUser` 명령 참고
+
+**Q7. 회사 PC인데 관리자 권한이 없음**
 - 네이티브 인스톨러는 관리자 권한 없이도 설치됩니다(홈 디렉터리에 설치)
 - 회사 보안 정책이 스크립트 실행을 막으면 IT팀에 문의하셔야 합니다
 
